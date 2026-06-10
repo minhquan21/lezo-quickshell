@@ -4,6 +4,7 @@ import Quickshell.Services.SystemTray
 import "./Tray"
 
 Row {
+  property var activePopup: null
 
     id: root
 
@@ -159,7 +160,24 @@ Row {
 
         model: SystemTray.items
 
-        delegate: Item {
+        delegate: Rectangle {
+          color:"transparent" 
+          border.color:"#aaffffff"
+          radius:5
+          Timer {
+            id: closeTimer
+
+            interval: 250
+
+            onTriggered: {
+              if (!mouse.containsMouse &&
+              !popup.menuHovered)
+              {
+                popup.visible = false
+              }
+              console.log("here is closeTimer event")
+            }
+          }
           MenuPopup {
 
             id: popup
@@ -247,11 +265,27 @@ Row {
                 break
 
                 case Qt.RightButton:
-                popup.visible = !popup.visible
 
 
                 break
               }
+            }
+            onEntered: {
+
+              if (
+                activePopup &&
+                activePopup !== popup
+              ) {
+                activePopup.closeMenu()
+              }
+
+              activePopup = popup
+
+              popup.visible = true
+            }            
+            onExited: {
+              console.log("exited.")
+              popup.closeMenu()
             }
           }
         }

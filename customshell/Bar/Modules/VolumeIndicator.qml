@@ -6,7 +6,7 @@ import "../../Services" as Services
 Rectangle {
       color:"#ffffff" 
       height:20
-      implicitWidth:Math.min(volumebox.implicitWidth + 10, 500)
+      implicitWidth:Math.min(volumebox.implicitWidth + 5, 500)
       Text {
         property string volumeVal:Services.Volume.volumeMute ? "volume_off":Services.Volume.volume >= 50 ? "volume_up" : Services.Volume.volume > 0 ? "volume_down" : "volume_mute"
         id: volumebox

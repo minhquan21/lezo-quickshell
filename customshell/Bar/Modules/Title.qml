@@ -2,15 +2,16 @@ import QtQuick
 import Quickshell.Hyprland
 Rectangle{
           color:"#ffffff"
-          width: Math.min(textItem.implicitWidth + 20, 500)
-          Behavior on width {
+          implicitWidth: Math.min(textItem.implicitWidth + 20, 600)
+          Behavior on implicitWidth {
             NumberAnimation {
               duration: 300
               easing.type: Easing.OutCubic
             }
           }
           Text {
-            anchors.centerIn: parent
+            anchors.left: parent.left
+            anchors.verticalCenter: parent.verticalCenter
             anchors.leftMargin: 10
             anchors.rightMargin: 10
             id:textItem

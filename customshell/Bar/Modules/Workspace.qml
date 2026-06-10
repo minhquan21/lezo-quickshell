@@ -10,7 +10,8 @@ Rectangle{
   anchors.verticalCenter:parent.verticalCenter
   anchors.left:parent.left
   width:20
-  height:parent.height - 10
+  height:20
+  radius:5
   Text {
     anchors.centerIn:parent
     color: "#000000"

@@ -3,7 +3,7 @@ import Quickshell.Io
 import "../../Services" as Services
 Rectangle{
   height: 20
-  implicitWidth: Math.min(brightnessbox.implicitWidth + 10, 500)
+  implicitWidth: Math.min(brightnessbox.implicitWidth + 5, 500)
   Process {
     id: brightnessProc
   }

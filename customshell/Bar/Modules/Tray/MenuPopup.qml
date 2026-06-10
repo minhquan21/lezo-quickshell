@@ -2,6 +2,8 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
+import Quickshell.Wayland
+import ".."
 
 PopupWindow {
   id: root
@@ -13,13 +15,13 @@ PopupWindow {
   implicitHeight: contentColumn.implicitHeight + 12
   color: "transparent"
 
-  // Sử dụng anchor.window và anchor.item để đồng bộ hệ tọa độ
   anchor.item: anchorItem
   anchor.edges: Edges.None
   anchor.gravity: Edges.Top
-  anchor.rect.y:-0 
+  anchor.rect.y:-10 
 
-  // Tạo hiệu ứng trượt cho nội dung bên trong dựa trên trạng thái hiển thị
+ 
+
   property bool isExpanded: false
   onVisibleChanged: {
     if (visible) {
@@ -29,22 +31,15 @@ PopupWindow {
     }
   }
 
-  ClickCatcher { 
-    id: catcher 
-    visible: root.visible 
-    onClickedOutside: { 
-      // Trước tiên thu nhỏ/trượt menu xuống, sau đó mới ẩn hẳn
-      root.isExpanded = false
-      closeTimer.start()
-    }
-  }
-
   Timer {
     id: closeTimer
-    interval: 200 // Trùng khớp với thời gian animation trượt
+    interval: 100 
     onTriggered: {
       root.visible = false
     }
+  }
+  function closeMenu() {
+    closeTimer.restart()
   }
 
   QsMenuOpener {
@@ -56,11 +51,11 @@ PopupWindow {
     id: contentRect
     anchors.fill: parent
     color: "#000000"
-    border.width: 1
+    border.width: 0
     border.color: "#ffffff"
-    clip: true // Đảm bảo nội dung khi trượt xuống không bị lộ ra ngoài ranh giới popup
-
-    // Hiệu ứng dịch chuyển trượt mượt mà cho phần nội dung bên trong
+    radius:5
+       
+    clip: true 
     transform: Translate {
       y: root.isExpanded ? 0 : 40 // Dịch xuống 40px khi ẩn
       Behavior on y {
@@ -68,11 +63,35 @@ PopupWindow {
       }
     }
 
-    // Kết hợp hiệu ứng mờ dần (opacity) để menu trông thanh lịch hơn
     opacity: root.isExpanded ? 1 : 0
     Behavior on opacity {
-      NumberAnimation { duration: 150 }
+      NumberAnimation { duration: 100 }
     }
+    Timer {
+      id: hoverCloseTimer
+
+      interval: 100
+
+      onTriggered: {
+        root.isExpanded = false
+        closeTimer.start()
+      }
+    }
+
+    HoverHandler {
+      id: menuHover
+
+      onHoveredChanged: {
+        if (!hovered) {
+          hoverCloseTimer.restart()
+        }
+        else {
+          hoverCloseTimer.stop()
+          closeTimer.stop()
+        }
+      }
+    }
+
 
     Column {
       id: contentColumn
@@ -87,7 +106,6 @@ PopupWindow {
           implicitWidth: 220
           implicitHeight: modelData.isSeparator ? 8 : 30
 
-          // Debug để kiểm tra cấu trúc dữ liệu menu nếu cần thiết
           Component.onCompleted: {
             // console.log("Text:", modelData.text, "Icon Raw:", modelData.icon)
           }
@@ -123,31 +141,23 @@ PopupWindow {
                 let raw = modelData.icon || "";
                 if (raw === "") return "";
 
-                // Nếu đã có sẵn tiền tố như image:// hoặc file:// thì giữ nguyên
                 if (raw.startsWith("image://") || raw.startsWith("file://")) {
                   return raw;
                 }
 
-                // Nếu là đường dẫn tuyệt đối cục bộ
                 if (raw.startsWith("/")) {
                   return "file://" + raw;
                 }
 
-                // Nếu chỉ là tên icon thuần túy
                 return "image://icon/" + raw;
               }
 
-              // PHẦN QUAN TRỌNG NHẤT: Triệt tiêu ô vuông hồng
-              // Chỉ hiển thị icon khi nó đã sẵn sàng (Image.Ready) và nguồn không trống.
-              // Nếu gặp Image.Error (không tìm thấy icon trong theme), nó sẽ lập tức bị ẩn đi
+     
               visible: source !== "" && status === Image.Ready
 
-              // Bạn có thể tùy chọn fallback sang một dấu tròn nhỏ hoặc icon mặc định của Papirus
               onStatusChanged: {
                 if (status === Image.Error && source !== "") {
-                  // Fallback sang một icon tối giản nếu muốn, ví dụ: "image://icon/system-run"
-                  // Ở đây chúng ta tạm thời để ẩn (visible: false) để giao diện trông cực kỳ sạch sẽ
-                }
+                 }
               }
             }
 

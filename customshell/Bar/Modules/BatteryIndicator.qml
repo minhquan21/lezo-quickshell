@@ -4,8 +4,14 @@ import Quickshell.Io
 
 Item {
   id: root
-
-  implicitWidth: Math.min(box.implicitWidth + 22, 500)
+  property bool isVisible: false
+  implicitWidth:  isVisible ? 57 : 22 
+  Behavior on implicitWidth {
+    NumberAnimation{
+      duration:200
+      easing.type:Easing.OutCubic
+    }
+  }
   height:20
   property int batteryPercent: 0
   property string batteryStatus: "Unknown"
@@ -79,24 +85,45 @@ Item {
 
       return "battery_android_frame_0" // battery_android_0
     }
-
-    Text {
+    Row{
       anchors.centerIn: parent
+      spacing: 5
+      Rectangle{
+        radius:5
+        width:20
+        height:20
+        Text {
+          anchors.left:parent.left
+          anchors.verticalCenter: parent.verticalCenter
+          anchors.leftMargin: 1
 
-      text: box.expanded ? batteryPercent : box.batteryIcon
+          text:box.batteryIcon
 
-      color: "black"
+          color: "black"
 
-      font.family: box.expanded ? " " : "Material Symbols Rounded"
-      font.pixelSize: box.expanded ? 12 : 18
+          font.family: "Material Symbols Rounded"
+          font.pixelSize: box.expanded ? 12 : 18
+        }
+      }
+      Rectangle{
+        radius: 5
+        height:20
+        width: root.isVisible ? 30 : 0
+        color:"#ffffff"
+        Text{
+          anchors.centerIn: parent
+          id:batteryBoxText
+          text:batteryPercent
+          font.pixelSize:15
+        }
+      }
     }
 
     MouseArea {
       anchors.fill: parent
       hoverEnabled: true
-
-      onClicked: box.expanded = !box.expanded
-      onExited: box.expanded = false
+      onClicked:root.isVisible = !root.isVisible
+      onExited:root.isVisible = false
     }
   }
 }
